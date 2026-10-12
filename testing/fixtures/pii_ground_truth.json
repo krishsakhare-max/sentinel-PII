@@ -1,0 +1,44 @@
+{
+  "blocks": [
+    {
+      "block_id": "identity-1",
+      "text": "Name: Emma Parker\nEmail: emma.parker@example.com\nPhone: +1 202-555-0101\nEmployee ID: EMP-1042",
+      "expected": [
+        ["PERSON", "Emma Parker"],
+        ["EMAIL_ADDRESS", "emma.parker@example.com"],
+        ["PHONE_NUMBER", "+1 202-555-0101"],
+        ["EMPLOYEE_ID", "EMP-1042"]
+      ]
+    },
+    {
+      "block_id": "identity-2",
+      "text": "Contact: José Álvarez\nManager: Anne-Marie O'Neil",
+      "expected": [
+        ["PERSON", "José Álvarez"],
+        ["PERSON", "Anne-Marie O'Neil"]
+      ]
+    },
+    {
+      "block_id": "sensitive-ids",
+      "text": "Date of birth: 14/03/1992\nSSN: 123-45-6789\nBank account: 12345678901",
+      "expected": [
+        ["DATE_OF_BIRTH", "14/03/1992"],
+        ["GOVERNMENT_ID", "123-45-6789"],
+        ["BANK_ACCOUNT", "12345678901"]
+      ]
+    },
+    {
+      "block_id": "location",
+      "text": "Office location: London, England.",
+      "expected": [
+        ["LOCATION", "London"],
+        ["LOCATION", "England"]
+      ]
+    },
+    {
+      "block_id": "negative",
+      "text": "Policy version 6.0 was approved on 18 June 2026. Budget is $50,000. Cadence Synthetic Group publishes this policy.",
+      "expected": []
+    }
+  ]
+}

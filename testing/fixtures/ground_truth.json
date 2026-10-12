@@ -1,0 +1,23 @@
+{
+  "scanned_pdf": {
+    "text": "SYNTHETIC SCANNED POLICY PAGE 1",
+    "page": 1,
+    "status": "ocr"
+  },
+  "pptx": {
+    "ordered_text": [
+      "Synthetic Person",
+      "person@example.test",
+      "+1 202 555 0100"
+    ],
+    "table": [
+      ["Team", "Contact"],
+      ["Synthetic Person", "person@example.test"]
+    ],
+    "slide": 1
+  },
+  "docx": {
+    "ordered_paragraphs": ["First synthetic paragraph", "Second synthetic paragraph"],
+    "table": [["Control", "Status"], ["Synthetic review", "Open"]]
+  }
+}

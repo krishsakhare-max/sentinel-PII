@@ -1,0 +1,10 @@
+streamlit==1.50.0
+PyMuPDF==1.26.5
+pytest==8.4.2
+python-docx==1.2.0
+python-pptx==1.0.2
+pytesseract==0.3.13
+Pillow==11.0.0
+presidio-analyzer==2.2.364
+spacy==3.8.16
+plotly==6.3.1
