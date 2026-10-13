@@ -27,6 +27,7 @@ from privacy.detector import detect_pii
 from privacy.redactor import redact_document, serialize_sanitized
 from privacy.verifier import verify_redaction
 from reporting.release_receipt import build_release_receipt
+from reporting.sanitized_document import SanitizedArtifact, generate_sanitized_artifact
 
 
 PALETTE = {
@@ -156,6 +157,7 @@ def initialize_state() -> None:
     st.session_state.setdefault("analysis_cache", {})
     st.session_state.setdefault("active_upload_digest", None)
     st.session_state.setdefault("attack_results", {})
+    st.session_state.setdefault("artifact_cache", {})
     st.session_state.setdefault("nav", "Command Center")
 
 
@@ -275,6 +277,34 @@ def render_stage_statuses(analysis: AnalysisResult | None) -> None:
         for index, (stage, status) in enumerate(statuses.items(), start=1)
     ]
     st.markdown(f'<div class="ps-stages">{"".join(stages)}</div>', unsafe_allow_html=True)
+
+
+def render_sanitized_export(artifact: SanitizedArtifact | None, format_name: str) -> None:
+    """Expose bytes only after the artifact-specific verifier approves them."""
+
+    st.subheader("Sanitized Document Export")
+    a, b, c, d = st.columns(4)
+    a.metric("Original format", format_name)
+    b.metric("Export format", artifact.export_format if artifact else format_name)
+    c.metric("Export verification", artifact.verification_status if artifact else "PENDING")
+    d.metric("Preservation", artifact.preservation_status if artifact else "NOT GENERATED")
+    if artifact is None:
+        st.info("Complete the secure analysis before an original-format export can be evaluated.")
+        return
+    if not artifact.downloadable:
+        st.warning(artifact.reason)
+        return
+    mime_types = {
+        "PDF": "application/pdf",
+        "DOCX": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "PPTX": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    }
+    st.success(artifact.reason)
+    st.download_button(
+        f"Download Sanitized {artifact.export_format}", data=artifact.data,
+        file_name=artifact.filename, mime=mime_types[artifact.export_format],
+        help="Available only because the generated file passed independent artifact verification.",
+    )
 
 
 def render_sidebar() -> None:
@@ -479,6 +509,13 @@ def render_document_analyzer() -> None:
     analysis = st.session_state.analysis_cache.get(cache_key)
     render_stage_statuses(analysis)
     render_decision(analysis)
+    artifact = st.session_state.artifact_cache.get(cache_key)
+    if (analysis and analysis.decision and analysis.decision.decision == "APPROVED"
+            and cache_key not in st.session_state.artifact_cache):
+        with st.spinner("Generating and independently verifying the original-format sanitized document."):
+            artifact = generate_sanitized_artifact(data, analysis, configure_tesseract())
+            st.session_state.artifact_cache[cache_key] = artifact
+    render_sanitized_export(artifact, validation.detected_format or "Unknown")
 
     with st.expander("Advanced Controls · individual stages"):
         st.caption("Debug controls expose intermediate evidence. They do not bypass verification or the gate.")
